@@ -1,3 +1,6 @@
+// This code is ai generated, the name of this file says it
+// Build command: cl /O1 /Os /EHsc /MD grokLauncher.cpp /link /OPT:REF /OPT:ICF
+
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <iostream>
