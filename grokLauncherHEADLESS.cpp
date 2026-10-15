@@ -163,13 +163,15 @@ void PatchClient(DWORD pid) {
         }
 
         ControlThreads(pid, true);
-        int found = mem.ReplaceString("roblox.qq.com", "roblox.qq.com", false);
+        int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
         if (found >= kThreshold) {
             ControlThreads(pid, true);
 
-            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
+            mem.ReplaceString("roblox.com", "rbolock.tk", true);
+            mem.ReplaceString("ROBLOX_singletonMutex", "ROBLOS_singletonMutex", true);
+            mem.ReplaceString("ROBLOX_singletonEvent", "ROBLOS_singletonEvent", true);
 
             ControlThreads(pid, false);
             return;
