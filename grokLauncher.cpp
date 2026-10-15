@@ -1,5 +1,3 @@
-// This code is ai generated, the name of this file says it
-
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <iostream>
@@ -180,18 +178,15 @@ void PatchClient(DWORD pid) {
         }
 
         ControlThreads(pid, true);
-        int found = mem.ReplaceString("roblox.com", "roblox.com", false);
+        std::cout << "Process suspended, reading memory.\n";
+		int found = mem.ReplaceString("roblox.qq.com", "roblox.qq.com", false);
         ControlThreads(pid, false);
 
         if (found >= kThreshold) {
-            std::cout << "Domain Threshold reached, applying patches...\n";
+            std::cout << "Domain Threshold reached, writing memory...\n";
 
             ControlThreads(pid, true);
-
-            mem.ReplaceString("roblox.com", "rbolock.tk", true);
-            mem.ReplaceString("ROBLOX_singletonMutex", "ROBLOS_singletonMutex", true);
-            mem.ReplaceString("ROBLOX_singletonEvent", "ROBLOS_singletonEvent", true);
-
+            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
             ControlThreads(pid, false);
 
             std::cout << "Client success.\n";

@@ -1,5 +1,6 @@
 // SubSystem = Windows (/SUBSYSTEM:WINDOWS)
 // This code is ai generated, the name of this file says it
+// Build command: cl /O1 /Os /EHsc /MD grokLauncherHEADLESS.cpp /link /OPT:REF /OPT:ICF
 
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -162,15 +163,13 @@ void PatchClient(DWORD pid) {
         }
 
         ControlThreads(pid, true);
-        int found = mem.ReplaceString("roblox.com", "roblox.com", false);
+        int found = mem.ReplaceString("roblox.qq.com", "roblox.qq.com", false);
         ControlThreads(pid, false);
 
         if (found >= kThreshold) {
             ControlThreads(pid, true);
 
-            mem.ReplaceString("roblox.com", "rbolock.tk", true);
-            mem.ReplaceString("ROBLOX_singletonMutex", "ROBLOS_singletonMutex", true);
-            mem.ReplaceString("ROBLOX_singletonEvent", "ROBLOS_singletonEvent", true);
+            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
 
             ControlThreads(pid, false);
             return;
