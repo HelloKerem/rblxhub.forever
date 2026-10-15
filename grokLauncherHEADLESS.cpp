@@ -148,6 +148,7 @@ void PatchClient(DWORD pid) {
     if (!mem.IsValid()) return;
 
     constexpr int kThreshold = 9;
+	constexpr int kMaxFound = 60;
     constexpr int kMaxAttempts = 60;
     constexpr int kMinWaitMs = 700;
 
@@ -166,12 +167,11 @@ void PatchClient(DWORD pid) {
         int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
-        if (found >= kThreshold) {
+        if (found >= kThreshold && found <= kMaxAttempts) {
             ControlThreads(pid, true);
 
             mem.ReplaceString("roblox.com", "rbolock.tk", true);
-            mem.ReplaceString("ROBLOX_singletonMutex", "ROBLOS_singletonMutex", true);
-            mem.ReplaceString("ROBLOX_singletonEvent", "ROBLOS_singletonEvent", true);
+            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
 
             ControlThreads(pid, false);
             return;

@@ -163,6 +163,7 @@ void PatchClient(DWORD pid) {
     }
 
     constexpr int kThreshold = 9;
+	constexpr int kMaxFound = 60;
     constexpr int kMaxAttempts = 60;          // maksimum ~12 saniye
     constexpr int kMinWaitMs = 700;           // senin bulduğun minimum süre
 
@@ -184,22 +185,27 @@ void PatchClient(DWORD pid) {
         int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
-        if (found >= kThreshold) {
-            std::cout << "Domain Threshold reached, applying patches...\n";
+		std::cout << "Found " << found << " occurrences in attempt " << attempt 
+          << " (threshold: " << kThreshold << ")\n";
+		if (found >= kThreshold && found <= kMaxAttempts) {
+            std::cout << "Domain threshold reached, applying patches...\n";
 
             ControlThreads(pid, true);
 
             mem.ReplaceString("roblox.com", "rbolock.tk", true);
-            mem.ReplaceString("ROBLOX_singletonMutex", "ROBLOS_singletonMutex", true);
-            mem.ReplaceString("ROBLOX_singletonEvent", "ROBLOS_singletonEvent", true);
+            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
 
             ControlThreads(pid, false);
 
             std::cout << "Client success.\n";
             return;
-        }
+        } else if (found > kMaxFound) {
+			std::cout << "Too many occurrences (" << found << "), skipping for safety.\n";
+		} else {
+			std::cout << "Not enough occurrences yet, retrying...\n";
+		}
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     std::cout << "Timeout: threshold not reached.\n";
