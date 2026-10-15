@@ -149,7 +149,7 @@ void PatchClient(DWORD pid) {
 
     constexpr int kThreshold = 9;
 	constexpr int kMaxFound = 60;
-    constexpr int kMaxAttempts = 60;
+    constexpr int kMaxAttempts = 20;
     constexpr int kMinWaitMs = 700;
 
     auto start = std::chrono::steady_clock::now();
@@ -167,11 +167,10 @@ void PatchClient(DWORD pid) {
         int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
-        if (found >= kThreshold && found <= kMaxAttempts) {
+        if (found >= kThreshold && found <= kMaxFound) {
             ControlThreads(pid, true);
 
             mem.ReplaceString("roblox.com", "rbolock.tk", true);
-            mem.ReplaceString("roblox.qq.com", "rbolock.tk", true);
 
             ControlThreads(pid, false);
             return;
