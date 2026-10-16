@@ -149,32 +149,26 @@ void PatchClient(DWORD pid) {
 
     constexpr int kThreshold = 9;
 	constexpr int kMaxFound = 60;
-    constexpr int kMaxAttempts = 20;
-    constexpr int kMinWaitMs = 700;
-
-    auto start = std::chrono::steady_clock::now();
-
+    constexpr int kMinAttempts = 10;
+    constexpr int kMaxAttempts = 20 + kMinAttempts;
     for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - start).count();
-
-        if (elapsed < kMinWaitMs) {
+        if (attempt <= kMinAttempts) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
 
-        ControlThreads(pid, true);
+		ControlThreads(pid, true);
         int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
-        if (found >= kThreshold && found <= kMaxFound) {
+		if (found >= kThreshold) {
             ControlThreads(pid, true);
 
             mem.ReplaceString("roblox.com", "rbolock.tk", true);
 
             ControlThreads(pid, false);
             return;
-        }
+		}
 
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
     }

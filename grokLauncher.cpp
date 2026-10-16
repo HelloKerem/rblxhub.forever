@@ -164,31 +164,24 @@ void PatchClient(DWORD pid) {
 
     constexpr int kThreshold = 9;
 	constexpr int kMaxFound = 60;
-    constexpr int kMaxAttempts = 20;          // maksimum ~12 saniye
-    constexpr int kMinWaitMs = 700;           // senin bulduğun minimum süre
+	constexpr int kMinAttempts = 10;
+    constexpr int kMaxAttempts = 20 + kMinAttempts;
 
-    std::cout << "Waiting for process to initialize...\n";
-
-    auto start = std::chrono::steady_clock::now();
+    std::cout << "Process launched, waiting for attempt threshold...\n";
 
     for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - start).count();
-
-        // En az 700 ms bekle
-        if (elapsed < kMinWaitMs) {
+        if (attempt <= kMinAttempts) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
 
-        ControlThreads(pid, true);
+		ControlThreads(pid, true);
+		std::cout << "Process suspended, reading memory...\n";
         int found = mem.ReplaceString("roblox.com", "roblox.com", false);
         ControlThreads(pid, false);
 
-		std::cout << "Found " << found << " occurrences in attempt " << attempt 
-          << " (threshold: " << kThreshold << ")\n";
-		if (found >= kThreshold && found <= kMaxFound) {
-            std::cout << "Domain threshold reached, applying patches...\n";
+		if (found >= kThreshold) {
+            std::cout << "Domain threshold reached, found " << found << " instances, writing memory...\n";
 
             ControlThreads(pid, true);
 
@@ -198,8 +191,6 @@ void PatchClient(DWORD pid) {
 
             std::cout << "Client success.\n";
             return;
-        } else if (found > kMaxFound) {
-			std::cout << "Too many occurrences (" << found << "), skipping for safety.\n";
 		} else {
 			std::cout << "Not enough occurrences yet, retrying...\n";
 		}
