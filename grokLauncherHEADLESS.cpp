@@ -148,30 +148,34 @@ void PatchClient(DWORD pid) {
     if (!mem.IsValid()) return;
 
     constexpr int kThreshold = 9;
-	constexpr int kMaxFound = 60;
-    constexpr int kMinAttempts = 10;
-    constexpr int kMaxAttempts = 20 + kMinAttempts;
-    for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
-        if (attempt <= kMinAttempts) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            continue;
-        }
+	constexpr int kMinAttempts = 12;          // biraz artırdım
+	constexpr int kMaxAttempts = 20 + kMinAttempts;
 
-		ControlThreads(pid, true);
-        int found = mem.ReplaceString("roblox.com", "roblox.com", false);
-        ControlThreads(pid, false);
-
-		if (found >= kThreshold) {
-            ControlThreads(pid, true);
-
-            mem.ReplaceString("roblox.com", "rbolock.tk", true);
-
-            ControlThreads(pid, false);
-            return;
+	for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
+		if (attempt <= kMinAttempts) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(60));
+			continue;
 		}
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    }
+		ControlThreads(pid, true);
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));   // suspend sonrası kısa nefes
+        int found = mem.ReplaceString("roblox.com", "roblox.com", false);  // Safe versiyonu kullan
+
+		ControlThreads(pid, false);
+
+		if (found >= kThreshold) {
+
+			ControlThreads(pid, true);
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+			mem.ReplaceString("roblox.com", "rbolock.tk", true);
+
+			ControlThreads(pid, false);
+			return;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(180));
+	}
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {

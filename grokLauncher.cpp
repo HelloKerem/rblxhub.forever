@@ -163,40 +163,43 @@ void PatchClient(DWORD pid) {
     }
 
     constexpr int kThreshold = 9;
-	constexpr int kMaxFound = 60;
-	constexpr int kMinAttempts = 10;
-    constexpr int kMaxAttempts = 20 + kMinAttempts;
+	constexpr int kMinAttempts = 12;          // biraz artırdım
+	constexpr int kMaxAttempts = 20 + kMinAttempts;
 
-    std::cout << "Process launched, waiting for attempt threshold...\n";
+	std::cout << "Process launched, waiting for attempt threshold...\n";
 
-    for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
-        if (attempt <= kMinAttempts) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            continue;
-        }
-
-		ControlThreads(pid, true);
-		std::cout << "Process suspended, reading memory...\n";
-        int found = mem.ReplaceString("roblox.com", "roblox.com", false);
-        ControlThreads(pid, false);
-
-		if (found >= kThreshold) {
-            std::cout << "Domain threshold reached, found " << found << " instances, writing memory...\n";
-
-            ControlThreads(pid, true);
-
-            mem.ReplaceString("roblox.com", "rbolock.tk", true);
-
-            ControlThreads(pid, false);
-
-            std::cout << "Client success.\n";
-            return;
-		} else {
-			std::cout << "Not enough occurrences yet, retrying...\n";
+	for (int attempt = 0; attempt < kMaxAttempts; ++attempt) {
+		if (attempt <= kMinAttempts) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(60));
+			continue;
 		}
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    }
+		ControlThreads(pid, true);
+		std::this_thread::sleep_for(std::chrono::milliseconds(40));   // suspend sonrası kısa nefes
+
+		std::cout << "Process suspended, reading memory...\n";
+        int found = mem.ReplaceString("roblox.com", "roblox.com", false);  // Safe versiyonu kullan
+
+		ControlThreads(pid, false);
+
+		if (found >= kThreshold) {
+			std::cout << "Domain threshold reached, found " << found 
+					  << " instances, writing memory...\n";
+
+			ControlThreads(pid, true);
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+			mem.ReplaceString("roblox.com", "rbolock.tk", true);
+
+			ControlThreads(pid, false);
+			std::cout << "Client success.\n";
+			return;
+		} else {
+			std::cout << "Not enough occurrences yet (" << found << "), retrying...\n";
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(180));
+	}
 
     std::cout << "Timeout: threshold not reached.\n";
 }
